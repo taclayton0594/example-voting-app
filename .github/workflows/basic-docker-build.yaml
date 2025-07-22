@@ -30,15 +30,12 @@ jobs:
           ### ENABLE ONE OR BOTH REGISTRIES
           ### tell docker where to push.
           ### NOTE if Docker Hub is set to true, you must set secrets above and also add account/repo/tags below
-          dockerhub-enable: true
-          ghcr-enable: true
+          # dockerhub-enable: true
 
           ### REQUIRED 
           ### A list of the account/repo names for docker build. List should match what's enabled above
           ### defaults to:
-          image-names: |
-            bretfisher/examplevotingapp_vote
-            ghcr.io/bretfisher/example-voting-app-vote
+          tags: tclayton0594/examplevotingapp_vote
 
           ### REQUIRED set rules for tagging images, based on special action syntax:
           ### https://github.com/docker/metadata-action#tags-input
@@ -53,6 +50,13 @@ jobs:
           ### path to where docker should copy files into image
           ### defaults to root of repository (.)
           context: "{{defaultContext}}:vote"
+
+          push: ${{ github.event_name != 'pull_request' }}
+
+          # Use BuildKit building engine to cache layers of images while building to speed up future builds
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
           
           ### Dockerfile alternate name. Default is Dockerfile (relative to context path)
           # file: Containerfile
@@ -68,11 +72,4 @@ jobs:
           ### defaults to false
           # comment-enable: false
 
-          # push: ${{ github.event_name != 'pull_request' }}
-          # dockerhub-enable: true
-          # # image_names: nginx #tclayton0594/docker-ci-automation
-          # tags: nginx:latest #tclayton0594/docker-ci-automation:latest
-
-          # # Use BuildKit building engine to cache layers of images while building to speed up future builds
-          # cache-from: type=gha
-          # cache-to: type=gha,mode=max
+          
