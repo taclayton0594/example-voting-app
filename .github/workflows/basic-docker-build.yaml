@@ -11,6 +11,7 @@ jobs:
   build-image:
     name: Build Image
     runs-on: ubuntu-latest
+    
     steps:
 
       - name: Set up Docker Buildx
@@ -25,8 +26,9 @@ jobs:
       - name: Docker build
         uses: docker/build-push-action@v6
         with:
+          context: .  # Path to your Dockerfile
           push: ${{ github.event_name != 'pull_request' }}
-          tags: bretfisher/docker-ci-automation:latest,bretfisher/docker-ci-automation:01 #tclayton0594/docker-ci-automation:latest
+          tags: tclayton0594/docker-ci-automation:latest
 
           # Use BuildKit building engine to cache layers of images while building to speed up future builds
           cache-from: type=gha
