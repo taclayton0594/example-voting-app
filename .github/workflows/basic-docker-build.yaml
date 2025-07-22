@@ -26,9 +26,11 @@ jobs:
       - name: Docker build
         uses: docker/build-push-action@v6
         with:
-          dockerhub-enable: true
           push: ${{ github.event_name != 'pull_request' }}
-          tags: tclayton0594/docker-ci-automation:latest
+          dockerhub-enable: true
+          image_names: tclayton0594/docker-ci-automation
+          # tags: tclayton0594/docker-ci-automation:latest
+          context: .
 
           # Use BuildKit building engine to cache layers of images while building to speed up future builds
           cache-from: type=gha
