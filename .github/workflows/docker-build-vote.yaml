@@ -12,8 +12,15 @@ jobs:
   build-image:
     name: Build Image
     runs-on: ubuntu-latest
+
+    permissions:
+      contents: read # for actions/checkout to fetch code
+      security-events: write # for github/codeql-action/upload-sarif to upload SARIF results
     
     steps:
+
+      - name: Checkout git repo
+        uses: actions/checkout@v4
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -27,6 +34,18 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: Build and Export to Docker
+        uses: docker/build-push-action@v6
+        with:
+          push: false
+          load: true # Export to Docker Engine rather than pushing to a registry
+          tags: tclayton0594/examplevotingapp_vote
+          context: "{{defaultContext}}:vote"
+          target: test
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          platforms: linux/amd64,linux/arm64,linux/arm/v7
+
       - name: Docker meta
         id: docker_meta
         uses: docker/metadata-action@v5
@@ -35,17 +54,18 @@ jobs:
           flavor: |
             latest=false
           tags: |
-            type=raw,value=04
-            type=raw,value=latest,enable=${{ endsWith(github.ref, github.event.repository.default_branch) }}
-            type=ref,event=pr
-            type=ref,event=branch
-            type=semver,pattern={{version}}
+            type=raw,value=06
+          # type=raw,value=latest,enable=${{ endsWith(github.ref, github.event.repository.default_branch) }}
+          # type=ref,event=pr
+          # type=ref,event=branch
+          # type=semver,pattern={{version}}
       
-      - name: Docker build
+      - name: Docker Build and Push to Docker Hub
         uses: docker/build-push-action@v6
         with:
-          push: ${{ github.event_name != 'pull_request' }}
-          tags: tclayton0594/examplevotingapp_vote
+          push: true
+          tags: ${{ steps.docker_meta.outputs.tags }}
+          labels: ${{ steps.docker_meta.outputs.labels }}
           
           ### path to where docker should copy files into image
           ### defaults to root of repository (.)
@@ -56,7 +76,6 @@ jobs:
           cache-to: type=gha,mode=max
 
           platforms: linux/amd64,linux/arm64,linux/arm/v7
-
 
       - name: Run Trivy for all CVEs (non-blocking)
         uses: aquasecurity/trivy-action@master
