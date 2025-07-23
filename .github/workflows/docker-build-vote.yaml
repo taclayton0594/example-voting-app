@@ -61,7 +61,7 @@ jobs:
       - name: Run Trivy for all CVEs (non-blocking)
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: ${{ github.run_id }}
+          image-ref: tclayton0594/examplevotingapp_vote
           exit-code: 0
           format: table 
 
