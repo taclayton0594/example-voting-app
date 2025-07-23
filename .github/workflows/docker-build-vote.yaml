@@ -9,7 +9,7 @@ on:
 
 # Job 1 ############################## 
 jobs:
-  build-image:
+  build-test-image:
     name: Build Image
     runs-on: ubuntu-latest
 
