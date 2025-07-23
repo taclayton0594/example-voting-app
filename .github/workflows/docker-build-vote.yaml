@@ -38,7 +38,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           push: true
-          tags: ghcr.io/bretfisher/docker-ci-automation:${{ github.run_id }}
+          tags: ghcr.io/bretfisher/docker-ci-automation:99
           target: test
           cache-from: type=gha
           cache-to: type=gha,mode=max
