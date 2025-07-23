@@ -32,7 +32,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GIT_TOKEN }}
+          password: ${{ secrets.GITHUB_TOKEN }}
         
       - name: Build and Push to GHCR
         uses: docker/build-push-action@v6
@@ -60,7 +60,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GIT_TOKEN }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       
       - name: Unit Testing in Docker
         run: docker run --rm ghcr.io/bretfisher/docker-ci-automation:"$GITHUB_RUN_ID" echo "run test commands here"
@@ -90,7 +90,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GIT_TOKEN }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Test healthcheck in Docker Compose
         run: |
@@ -171,7 +171,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GIT_TOKEN }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Pull image to scan
         run: docker pull ghcr.io/bretfisher/docker-ci-automation:"$GITHUB_RUN_ID"
@@ -231,13 +231,13 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GIT_TOKEN }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Docker Metadata for Final Image Build
         id: docker_meta
         uses: docker/metadata-action@v5
         with:
-          images: tclayton0594/docker-ci-automation,ghcr.io/bretfisher/docker-ci-automation
+          images: bretfisher/docker-ci-automation,ghcr.io/bretfisher/docker-ci-automation
           flavor: |
             latest=false
           tags: |
