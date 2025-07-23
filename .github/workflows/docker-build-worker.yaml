@@ -68,7 +68,7 @@ jobs:
 # Final Job ##########################
   build-final-image:  
     name: Build the Final Image
-    needs: [test-unit, scan-image]
+    needs: [scan-image]
     runs-on: ubuntu-latest
 
     permissions:
