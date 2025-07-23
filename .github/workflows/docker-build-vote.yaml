@@ -50,6 +50,8 @@ jobs:
           platforms: linux/amd64,linux/arm64,linux/arm/v7
 
       # Trivy vulnerability scan
+      # cans for vulnerabilities within the software packages, uncovers accidentally embedded secrets such as passwords, 
+      # and analyzes license information associated with the included software
       - name: Run Trivy for all CVEs (non-blocking)
         uses: aquasecurity/trivy-action@master
         with:
