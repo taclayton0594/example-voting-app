@@ -13,7 +13,8 @@ jobs:
     name: Build Image
     runs-on: ubuntu-latest
 
-    permissions: write # to push image to ghcr.io
+    permissions:
+      packages: write # needed to push docker image to ghcr.io
 
     steps:
       # For Cacheing Docker Image Layers to Speed Up Subsequent Builds
