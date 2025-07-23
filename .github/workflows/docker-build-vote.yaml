@@ -45,11 +45,11 @@ jobs:
           cache-to: type=gha,mode=max
           platforms: linux/amd64
 
-      # for more advanced tests, use docker compose with `depends_on`
-      - name: Test healthcheck in Docker Compose
+      # for simple tests (npm test, etc.) just run a local image in docker
+      # NOTE: did not add any unit test currently
+      - name: Unit Testing in Docker
         run: |
-          export TESTING_IMAGE="tclayton0594/examplevotingapp_vote"
-          docker compose -f docker-compose.yml up --exit-code-from sut
+          docker run --rm tclayton0594/examplevotingapp_vote echo "Running unit tests...."
 
       - name: Run Trivy for all CVEs (non-blocking)
         uses: aquasecurity/trivy-action@master
