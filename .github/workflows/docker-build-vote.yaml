@@ -32,7 +32,7 @@ jobs:
         with:
           push: false
           load: true # Export to Docker Engine rather than pushing to a registry
-          tags: "{{defaultContext}}:vote"
+          tags: tclayton0594/examplevotingapp_vote:latest
           target: test
           cache-from: type=gha
           cache-to: type=gha,mode=max
