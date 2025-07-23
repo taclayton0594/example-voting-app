@@ -1,0 +1,143 @@
+---
+name: Docker Workflow
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+# Job 1 ##########################
+  build-image:
+    name: Build Image
+    runs-on: ubuntu-latest
+
+    # permissions:
+    #   contents: read # for actions/checkout to fetch code
+    #   security-events: write # for github/codeql-action/upload-sarif to upload SARIF results
+    
+    steps:
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+            
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and Export to Docker
+        uses: docker/build-push-action@v6
+        with:
+          push: false
+          load: true # Export to Docker Engine rather than pushing to a registry
+          tags: tclayton0594/examplevotingapp_result
+          context: "{{defaultContext}}:result"
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          platforms: linux/amd64
+
+      
+# Job 2 ##########################
+  test-unit:
+    # for simple tests (npm test, etc.) just run a local image in docker
+    # NOTE: did not add any unit test currently
+    name: Unit tests in Docker
+    needs: [build-image]
+    runs-on: ubuntu-latest
+
+    permissions:
+      packages: read
+
+    steps:
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      
+      - name: Unit Testing in Docker
+        run: |
+          docker run --rm tclayton0594/examplevotingapp_result echo "Running unit tests...."
+
+# Job 3 ##########################
+  scan-image:
+    name: Scan Image with Trivy
+    needs: [build-image]
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read # for actions/checkout to fetch code
+      # packages: read # needed to pull docker image to ghcr.io
+      security-events: write # for github/codeql-action/upload-sarif to upload SARIF results
+
+    steps:
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Run Trivy for all CVEs (non-blocking)
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: tclayton0594/examplevotingapp_result
+          exit-code: 0
+          format: table 
+
+# Final Job ##########################
+  build-final-image:  
+    name: Build the Final Image
+    needs: [test-unit, scan-image]
+    runs-on: ubuntu-latest
+
+    permissions:
+      pull-requests: write # needed to create and update comments in PRs
+
+    steps:
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+            
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Docker Metadata for Final Image Build
+        id: docker_meta
+        uses: docker/metadata-action@v5
+        with:
+          images: tclayton0594/examplevotingapp_result
+          flavor: |
+            latest=false
+          tags: |
+            type=raw,value=99
+      
+      - name: Docker Build and Push to Docker Hub
+        uses: docker/build-push-action@v6
+        with:
+          push: true
+          tags: ${{ steps.docker_meta.outputs.tags }}
+          labels: ${{ steps.docker_meta.outputs.labels }}
+          
+          ### path to where docker should copy files into image
+          ### defaults to root of repository (.)
+          context: "{{defaultContext}}:result"
+
+          # Use BuildKit building engine to cache layers of images while building to speed up future builds
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+          platforms: linux/amd64,linux/arm64,linux/arm/v7
+
+
+        
