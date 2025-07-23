@@ -45,7 +45,14 @@ jobs:
           cache-to: type=gha,mode=max
           platforms: linux/amd64
 
-      - name: Docker meta
+      - name: Run Trivy for all CVEs (non-blocking)
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: tclayton0594/examplevotingapp_vote
+          exit-code: 0
+          format: table 
+
+      - name: Docker Metadata for Final Image Build
         id: docker_meta
         uses: docker/metadata-action@v5
         with:
@@ -75,12 +82,5 @@ jobs:
           cache-to: type=gha,mode=max
 
           platforms: linux/amd64,linux/arm64,linux/arm/v7
-
-      - name: Run Trivy for all CVEs (non-blocking)
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: tclayton0594/examplevotingapp_vote
-          exit-code: 0
-          format: table 
 
           
