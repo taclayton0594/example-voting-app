@@ -32,7 +32,7 @@ jobs:
         with:
           push: false
           load: true # Export to Docker Engine rather than pushing to a registry
-          tags: tclayton0594/examplevotingapp_vote:${{ github.run_id }}
+          tags: "{{defaultContext}}:vote"
           target: test
           cache-from: type=gha
           cache-to: type=gha,mode=max
@@ -45,7 +45,7 @@ jobs:
       - name: Run Trivy for all CVEs (non-blocking)
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: tclayton0594/examplevotingapp_vote:${{ github.run_id }}
+          image-ref: tclayton0594/examplevotingapp_vote
           exit-code: 0
           format: table 
 
@@ -53,7 +53,7 @@ jobs:
         id: docker_meta
         uses: docker/metadata-action@v5
         with:
-          images: tclayton0594/examplevotingapp_vote:${{ github.run_id }}
+          images: tclayton0594/examplevotingapp_vote
           flavor: |
             latest=false
           tags: |
