@@ -15,9 +15,6 @@ jobs:
 
     permissions: write # to push image to ghcr.io
 
-    permissions:
-      pull-requests: write # needed to create and update comments in PRs
-
     steps:
       # For Cacheing Docker Image Layers to Speed Up Subsequent Builds
       - name: Set up Docker Buildx
